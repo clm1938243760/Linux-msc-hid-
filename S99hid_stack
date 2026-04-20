@@ -1,0 +1,58 @@
+#!/bin/sh
+
+HTTP_PIDFILE="/var/run/http_hid.pid"
+SENDER_PIDFILE="/var/run/usb_sender_safe.pid"
+
+case "$1" in
+    start)
+        echo "Starting HID stack..."
+
+        pkill -f /root/http_hid_server.py 2>/dev/null || true
+        pkill -f /root/usb_sender_safe.py 2>/dev/null || true
+        rm -f "$HTTP_PIDFILE" "$SENDER_PIDFILE"
+        rm -f /tmp/ums_busy
+
+        printf 'usb_hid_en\nusb_ums_en\n' > /tmp/.usb_config
+        sleep 2
+
+        /root/rebuild_hid_msc.sh > /tmp/rebuild_hid_msc.out 2>&1
+        if [ $? -ne 0 ]; then
+            echo "rebuild_hid_msc failed"
+            exit 1
+        fi
+
+        nohup python3 /root/http_hid_server.py >/tmp/http_hid.out 2>&1 &
+        echo $! > "$HTTP_PIDFILE"
+        sleep 1
+        kill -0 "$(cat "$HTTP_PIDFILE")" 2>/dev/null || {
+            echo "http_hid_server start failed"
+            exit 1
+        }
+
+        nohup python3 /root/usb_sender_safe.py >/tmp/usb_sender.out 2>&1 &
+        echo $! > "$SENDER_PIDFILE"
+        sleep 1
+        kill -0 "$(cat "$SENDER_PIDFILE")" 2>/dev/null || {
+            echo "usb_sender_safe start failed"
+            exit 1
+        }
+        ;;
+    stop)
+        echo "Stopping HID stack..."
+        pkill -f /root/http_hid_server.py 2>/dev/null || true
+        pkill -f /root/usb_sender_safe.py 2>/dev/null || true
+        rm -f "$HTTP_PIDFILE" "$SENDER_PIDFILE"
+        rm -f /tmp/ums_busy
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit 0

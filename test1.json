@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "type": "hid_script",
+  "meta": {
+    "screen": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "form": {},
+  "events": [
+    {
+      "action": "mouse_move",
+      "x": 300,
+      "y": 200
+    },
+    {
+      "action": "mouse_click",
+      "button": "left"
+    },
+    {
+      "action": "input_text",
+      "text": "hello"
+    },
+    {
+      "action": "keypress",
+      "key": "ENTER"
+    }
+  ]
+}
