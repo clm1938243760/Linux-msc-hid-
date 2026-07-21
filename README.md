@@ -1,3 +1,7 @@
+# 项目状态
+
+> 历史原型：本仓库保留 RK3568 USB Mass Storage/HID 复合设备的早期验证代码，不再作为生产部署版本。当前 RK3568 网关请使用 [Debian-usb-bridge](https://github.com/clm1938243760/Debian-usb-bridge)。
+
 项目简介
 
 本项目基于 Linux USB Gadget 框架，在 RK3568 开发板上实现一个复合 USB 设备：
